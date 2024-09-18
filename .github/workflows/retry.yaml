@@ -1,0 +1,22 @@
+name: Retry Dequeued Merge
+
+on:
+  pull_request:
+    types: ['dequeued']  # Custom event for dequeuing from the merge queue
+
+jobs:
+  retry_queue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Retry merge queue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "Attempting to merge $PR_NUMBER"
+          gh pr merge --auto "$PR_NUMBER"
