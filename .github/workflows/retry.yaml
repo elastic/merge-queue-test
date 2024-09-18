@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+        permissions:
+          pull-requests: write
 
       - name: Retry merge queue
         env:
