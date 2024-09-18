@@ -19,6 +19,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          REASON: ${{ github.event.pull_request.reason }}
         run: |
-          echo "Attempting to merge $PR_NUMBER"
+          echo "Attempting to merge $PR_NUMBER $REASON"
           gh pr merge --auto "$PR_NUMBER"
