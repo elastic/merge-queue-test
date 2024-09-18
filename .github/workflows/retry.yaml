@@ -31,7 +31,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REASON: ${{ github.event.reason }}
         run: |
-          retries=$(gh pr view --json labels --jq '.labels[] | select(.name | startswith("retry-"))' "$PR_NUMBER")
+          retries=$(gh pr view --json labels --jq '.labels[] | select(.name | startswith("retry-")).name' "$PR_NUMBER")
           attempt=0
           case "$retries" in
           *retry-2*)
