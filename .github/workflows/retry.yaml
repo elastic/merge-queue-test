@@ -35,7 +35,7 @@ jobs:
           attempt=0
           case "$retries" in
           *retry-2*)
-              # Retry limit reached, delete labels and exit
+              # Retry limit reached, delete labels and exit without retrying
               gh pr edit --remove-label retry-0 --remove-label retry-1 --remove-label retry-2 "$PR_NUMBER"
               exit 0
               ;;
@@ -47,6 +47,6 @@ jobs:
               ;;
           esac
 
-          echo "Attempting to merge $PR_NUMBER $REASON"
+          echo "Attempting to merge $PR_NUMBER because of $REASON"
           gh pr merge --auto "$PR_NUMBER" &&
               gh pr edit --add-label "retry-$attempt" "$PR_NUMBER"
