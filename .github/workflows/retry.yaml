@@ -16,6 +16,13 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v4
 
+      # TODO
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+
       - name: Retry merge queue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
