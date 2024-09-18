@@ -10,6 +10,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+
+    # Skip job if a human removed this from the queue
     if: ${{ github.event.reason != 'MANUAL' }}
 
     steps:
@@ -29,5 +31,22 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REASON: ${{ github.event.reason }}
         run: |
+          retries=$(gh pr view --json labels --jq '.labels[].name' "$PR_NUMBER" | grep 'retry-')
+          attempt=0
+          case "$retries" in
+          *retry-2*)
+              # Retry limit reached, delete labels and exit
+              gh pr edit --remove-label retry-0 --remove-label retry-1 --remove-label retry-2 "$PR_NUMBER"
+              exit 0
+              ;;
+          *retry-1*)
+              attempt=2
+              ;;
+          *retry-0*)
+              attempt=1
+              ;;
+          esac
+
           echo "Attempting to merge $PR_NUMBER $REASON"
-          gh pr merge --auto "$PR_NUMBER"
+          gh pr merge --auto "$PR_NUMBER" &&
+              gh pr edit --add-label "retry-$attempt" "$PR_NUMBER"
