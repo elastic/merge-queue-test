@@ -10,6 +10,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    if: ${{ github.event.reason == 'MANUAL' }}
 
     steps:
       - name: Checkout the code
