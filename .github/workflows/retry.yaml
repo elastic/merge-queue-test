@@ -36,7 +36,7 @@ jobs:
               retries=0
           fi
 
-          ((retries++))
+          ((++retries))
 
           if ((retries > 3)); then
               echo 0 > retries
@@ -45,7 +45,7 @@ jobs:
           fi
           echo "$retries" > retries
 
-          echo "Attempting to merge $PR_NUMBER because of $REASON"
+          echo "Attempting to merge $PR_NUMBER because of $REASON - retry $retries"
           gh pr merge --auto "$PR_NUMBER"
       - name: Save retries
         uses: actions/cache/save@v4
