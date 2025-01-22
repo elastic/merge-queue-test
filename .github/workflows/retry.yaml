@@ -1,0 +1,55 @@
+name: Retry Dequeued Merge
+
+on:
+  pull_request:
+    types: ['dequeued']  # Custom event for dequeuing from the merge queue
+
+jobs:
+  retry_queue:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: read
+
+    # Skip job if a human removed this from the queue or pr is not open
+    if: ${{ github.event.reason != 'MANUAL' && github.event.reason != 'MERGE' && github.event.pull_request.state == 'open' }}
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/cache/restore@v4
+        name: Fetch cache
+        id: cache
+        with:
+          key: retry-queue-${{ github.event.pull_request.number }}
+          path: retries
+      - name: Retry merge queue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REASON: ${{ github.event.reason }}
+        run: |
+          if [[ -f retries ]]; then
+              retries=$(<retries)
+          else
+              retries=0
+          fi
+
+          ((retries++))
+
+          if ((retries > 3)); then
+              echo 0 > retries
+              echo "Retry limit exceeded. Exiting."
+              exit 0
+          fi
+          echo "$retries" > retries
+
+          echo "Attempting to merge $PR_NUMBER because of $REASON"
+          gh pr merge --auto "$PR_NUMBER" &&
+              gh pr edit --add-label "retry-$attempt" "$PR_NUMBER"
+      - name: Save retries
+        uses: actions/cache/save@v4
+        with:
+          path: retries
+          key: retry-queue-${{ github.event.pull_request.number }}
