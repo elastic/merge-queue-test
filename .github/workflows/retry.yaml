@@ -10,7 +10,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      repository-projects: read
 
     # Skip job if a human removed this from the queue or pr is not open
     if: ${{ github.event.reason != 'MANUAL' && github.event.reason != 'MERGE' && github.event.pull_request.state == 'open' }}
@@ -46,8 +45,7 @@ jobs:
           echo "$retries" > retries
 
           echo "Attempting to merge $PR_NUMBER because of $REASON"
-          gh pr merge --auto "$PR_NUMBER" &&
-              gh pr edit --add-label "retry-$attempt" "$PR_NUMBER"
+          gh pr merge --auto "$PR_NUMBER"
       - name: Save retries
         uses: actions/cache/save@v4
         with:
