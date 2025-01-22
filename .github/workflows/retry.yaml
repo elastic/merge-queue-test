@@ -29,6 +29,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REASON: ${{ github.event.reason }}
         run: |
+          set -euxo pipefail
           if [[ -f retries ]]; then
               retries=$(<retries)
           else
