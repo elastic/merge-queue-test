@@ -6,6 +6,11 @@ on:
       - main
 
 jobs:
+  build-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: dummy
+        run: true
   build:
     runs-on: ubuntu-latest
 
@@ -14,4 +19,4 @@ jobs:
       uses: actions/checkout@v2
 
     - name: List files
-      run: ls
+      run: true
